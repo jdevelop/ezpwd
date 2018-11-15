@@ -1,6 +1,7 @@
 package ezpwd
 
 import (
+	"errors"
 	"io"
 
 	"golang.org/x/crypto/openpgp"
@@ -34,8 +35,13 @@ func (cr *Crypto) Encrypt(in io.Reader, out io.Writer) error {
 	return w.Close()
 }
 
+var noSymmetric = errors.New("Symmetric not set")
+
 func (cr *Crypto) Decrypt(in io.Reader, out io.Writer) error {
 	md, err := openpgp.ReadMessage(in, nil, func(keys []openpgp.Key, symmetric bool) ([]byte, error) {
+		if !symmetric {
+			return nil, noSymmetric
+		}
 		return cr.keyPass, nil
 	}, nil)
 	if err != nil {
