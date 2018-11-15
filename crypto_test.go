@@ -30,3 +30,25 @@ func TestEncrypt(t *testing.T) {
 	assert.EqualValues(t, "test message", string(dec.Bytes()))
 
 }
+
+func TestDecryptWrongPass(t *testing.T) {
+	crypto, err := NewCrypto([]byte("password"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	b := new(bytes.Buffer)
+	dec := new(bytes.Buffer)
+
+	err = crypto.Encrypt(strings.NewReader("test message"), b)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	crypto.keyPass = []byte("passwor")
+	err = crypto.Decrypt(b, dec)
+	if err == nil {
+		t.Fatal("Should fail because of the wrong password")
+	}
+
+}
