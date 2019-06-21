@@ -21,6 +21,6 @@ Usage of ezpwd:
         Password file (default "private/test-pass.enc")
 ```
 
-### Build
+### Build & install
 
-`go build app/ezpwd.go`
+`go install ./ezpwd/`
