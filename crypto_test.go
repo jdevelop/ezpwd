@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestEncrypt(t *testing.T) {
@@ -14,20 +14,14 @@ func TestEncrypt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	b := new(bytes.Buffer)
-	dec := new(bytes.Buffer)
+	var b, dec bytes.Buffer
 
-	err = crypto.Encrypt(strings.NewReader("test message"), b)
-	if err != nil {
-		t.Fatal(err)
-	}
+	err = crypto.Encrypt(strings.NewReader("test message"), &b)
+	require.Nil(t, err)
 
-	err = crypto.Decrypt(b, dec)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.EqualValues(t, "test message", string(dec.Bytes()))
+	err = crypto.Decrypt(&b, &dec)
+	require.Nil(t, err)
+	require.EqualValues(t, "test message", string(dec.Bytes()))
 
 }
 
@@ -41,14 +35,9 @@ func TestDecryptWrongPass(t *testing.T) {
 	dec := new(bytes.Buffer)
 
 	err = crypto.Encrypt(strings.NewReader("test message"), b)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.Nil(t, err)
 
 	crypto.keyPass = []byte("passwor")
 	err = crypto.Decrypt(b, dec)
-	if err == nil {
-		t.Fatal("Should fail because of the wrong password")
-	}
-
+	require.NotNil(t, err)
 }
