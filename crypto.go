@@ -1,12 +1,10 @@
 package ezpwd
 
 import (
-	"errors"
+	"fmt"
 	"io"
-	"io/ioutil"
 
-	"github.com/ProtonMail/gopenpgp/constants"
-	"github.com/ProtonMail/gopenpgp/crypto"
+	"golang.org/x/crypto/openpgp"
 )
 
 type Crypto struct {
@@ -27,34 +25,38 @@ type CryptoInterface interface {
 }
 
 func (cr *Crypto) Encrypt(in io.Reader, out io.Writer) error {
-	var key = crypto.NewSymmetricKey(cr.keyPass, constants.ThreeDES)
-	content, err := ioutil.ReadAll(in)
+	w, err := openpgp.SymmetricallyEncrypt(out, cr.keyPass, nil, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't encrypt the message: %w", err)
 	}
-	var message = crypto.NewPlainMessage(content)
-	encrypted, err := key.Encrypt(message)
-	if err != nil {
-		return err
+	if _, err = io.Copy(w, in); err != nil {
+		return fmt.Errorf("can't copy encrypted message: %w", err)
 	}
-	_, err = out.Write(encrypted.GetBinary())
-	return err
+	return w.Close()
 }
 
-var noSymmetric = errors.New("Symmetric not set")
+var (
+	noSymmetric = fmt.Errorf("Symmetric not set")
+	wrongPass   = fmt.Errorf("Wrong password")
+)
 
 func (cr *Crypto) Decrypt(in io.Reader, out io.Writer) error {
-	var key = crypto.NewSymmetricKey(cr.keyPass, constants.ThreeDES)
-	content, err := ioutil.ReadAll(in)
+	read := false
+	md, err := openpgp.ReadMessage(in, nil, func(keys []openpgp.Key, symmetric bool) ([]byte, error) {
+		if !symmetric {
+			return nil, noSymmetric
+		}
+		if read {
+			return nil, wrongPass
+		}
+		read = true
+		return cr.keyPass, nil
+	}, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't decrypt message : %w", err)
 	}
-	msg := crypto.NewPGPMessage(content)
-
-	decrypted, err := key.Decrypt(msg)
-
-	if _, err := io.Copy(out, decrypted.NewReader()); err != nil {
-		return err
+	if _, err := io.Copy(out, md.UnverifiedBody); err != nil {
+		return fmt.Errorf("can't transfer decrypted message : %w", err)
 	}
 	return nil
 }
