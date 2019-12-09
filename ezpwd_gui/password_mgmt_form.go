@@ -12,8 +12,8 @@ func (e *devEzpwd) passwordMgmtForm(id int, pwds []ezpwd.Password) *tview.Form {
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
 	svc := tview.NewInputField().SetLabel("Service:").SetFieldWidth(20)
 	login := tview.NewInputField().SetLabel("Login:").SetFieldWidth(20)
-	pwd := tview.NewInputField().SetLabel("Password:").SetFieldWidth(20)
-	confirm := tview.NewInputField().SetLabel("Confirm:").SetFieldWidth(20)
+	pwd := tview.NewInputField().SetLabel("Password:").SetFieldWidth(20).SetMaskCharacter('*')
+	confirm := tview.NewInputField().SetLabel("Confirm:").SetFieldWidth(20).SetMaskCharacter('*')
 	comment := tview.NewInputField().SetLabel("Comment").SetFieldWidth(20)
 	form.
 		AddFormItem(svc).
@@ -24,7 +24,7 @@ func (e *devEzpwd) passwordMgmtForm(id int, pwds []ezpwd.Password) *tview.Form {
 		AddButton("Ok", func() {
 			e.app.QueueUpdateDraw(func() {
 				if pwd.GetText() != confirm.GetText() {
-					e.showMessage("Passwords mismatch", screenPwdManage)
+					e.showMessage("Error", "Passwords mismatch", screenPwdManage)
 				} else {
 					p := ezpwd.Password{
 						Service:  svc.GetText(),
