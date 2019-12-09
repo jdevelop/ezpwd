@@ -1,10 +1,13 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"log"
+	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 
 	"github.com/gdamore/tcell"
 	"github.com/jdevelop/ezpwd"
@@ -56,12 +59,28 @@ func NewEzpwd(passwordsPath string) (*devEzpwd, error) {
 
 func (e *devEzpwd) Run() error {
 	e.passwordsChan = make(chan []ezpwd.Password)
-	form := e.passwordForm()
-	tableContainer := e.passwordsTable()
+	var (
+		form   *tview.Form
+		height int
+	)
+	_, err := os.Stat(e.passwordPath)
+	switch {
+	case err == nil:
+		form, height = e.passwordForm(), 7
+	case errors.Is(err, os.ErrNotExist):
+		form, height = e.initForm(), 9
+	default:
+		log.Fatal("can't use storage at path %s: %+v", e.passwordPath, err)
+	}
+	e.passwordsTable()
 	e.pages.
-		AddPage(screenPwd, modal(form, 40, 8), true, true).
-		AddPage(screenPwds, tableContainer, true, false)
-	e.app.SetRoot(e.pages, true).SetFocus(form)
+		AddPage(screenPwd, modal(form, 40, height), true, true)
+	frame := tview.NewFrame(e.pages)
+	frame.SetBorder(true)
+	frame.AddText("`Esc` to exit dialogs without saving", false, tview.AlignRight, tcell.ColorGrey)
+	frame.AddText("`Ctrl-C` to quit application", false, tview.AlignRight, tcell.ColorGrey)
+	frame.SetTitle("Storage " + e.passwordPath)
+	e.app.SetRoot(frame, true).SetFocus(form)
 	return e.app.Run()
 }
 
@@ -71,7 +90,12 @@ func main() {
 		log.Fatal("can't retrieve current user", err)
 	}
 	flag.Parse()
-	encPath := filepath.Join(u.HomeDir, *passFile)
+	var encPath string
+	if !strings.HasPrefix(*passFile, "/") {
+		encPath = filepath.Join(u.HomeDir, *passFile)
+	} else {
+		encPath = *passFile
+	}
 
 	p, err := NewEzpwd(encPath)
 	if err != nil {

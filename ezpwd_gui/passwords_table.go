@@ -1,26 +1,26 @@
 package main
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"os"
 
+	"github.com/atotto/clipboard"
 	"github.com/gdamore/tcell"
+	"github.com/jdevelop/ezpwd"
 	"github.com/rivo/tview"
 )
 
-func (e *devEzpwd) passwordsTable() tview.Primitive {
+func (e *devEzpwd) passwordsTable() {
 	table := tview.NewTable().
-		SetBorders(true).
-		SetFixed(1, 0)
-	for i, v := range []string{"#", "Service", "Username", "Comment"} {
-		table.SetCell(0, i, tview.NewTableCell(v).SetAlign(tview.AlignCenter).SetTextColor(tcell.ColorYellow))
-	}
+		SetBorders(true)
 	table.SetSelectable(true, false)
 	passwordsMsg := tview.NewTextView()
 	passwordsMsg.SetBorder(true)
-	pages := tview.NewPages()
 	passwordsMsg.SetDoneFunc(func(tcell.Key) {
-		pages.RemovePage(screenPwdCopied)
-		pages.ShowPage(screenPwds)
+		e.pages.RemovePage(screenPwdCopied)
+		e.pages.ShowPage(screenPwds)
 	})
 
 	table.SetDoneFunc(func(k tcell.Key) {
@@ -67,28 +67,39 @@ func (e *devEzpwd) passwordsTable() tview.Primitive {
 							})
 						})
 					case 's', 'S':
-						/*
-							if err := backup(file); err != nil {
-								return err
+						{
+							err := backup(e.passwordPath)
+							switch {
+							case err == nil || errors.Is(err, os.ErrNotExist):
+								// do nothing
+							default:
+								e.showMessage("Error", fmt.Sprintf("Can't backup password file: %+v", err), screenPwds)
+								break
 							}
+						}
 
-							buffer := new(bytes.Buffer)
+						var buffer bytes.Buffer
 
-							if err := ezpwd.WritePasswords(pwds, buffer); err != nil {
-								return err
-							}
+						if err := ezpwd.WritePasswords(pwds, &buffer); err != nil {
+							e.showMessage("Error", fmt.Sprintf("Can't backup password file: %+v", err), screenPwds)
+							break
+						}
 
-							if err := _file.Close(); err != nil {
-								return err
-							}
+						_file, err := os.Create(e.passwordPath)
+						if err != nil {
+							e.showMessage("Error", fmt.Sprintf("Can't open password file '%s': %+v", e.passwordPath, err), screenPwds)
+							break
+						}
+						defer _file.Close()
 
-							_file, err = os.OpenFile(file, os.O_WRONLY, os.ModeAppend)
-							if err != nil {
-								return err
-							}
-
-							return cr.Encrypt(buffer, _file)
-						*/
+						if err := e.crypto.Encrypt(&buffer, _file); err != nil {
+							e.showMessage("Error", fmt.Sprintf("Can't encrypt password file '%s': %+v", e.passwordPath, err), screenPwds)
+						} else {
+							e.showMessage("Success!", fmt.Sprintf("Passwords saved successfully"), screenPwds, func(text *tview.TextView) {
+								text.SetBorderColor(tcell.ColorGreen)
+								text.SetTitleColor(tcell.ColorGreen)
+							})
+						}
 					}
 					return key
 				})
@@ -96,18 +107,27 @@ func (e *devEzpwd) passwordsTable() tview.Primitive {
 					if row == 0 {
 						return
 					}
+					clipboard.WriteAll(pwds[row-1].Password)
 					var content = fmt.Sprintf("Selected password '%s : %s'", pwds[row-1].Service, pwds[row-1].Login)
 					passwordsMsg.SetText(content)
 					mp := modal(passwordsMsg, len(content)+4, 4)
-					pages.AddPage(screenPwdCopied, mp, true, true)
-					pages.ShowPage(screenPwdCopied)
+					e.pages.AddPage(screenPwdCopied, mp, true, true)
+					e.pages.ShowPage(screenPwdCopied)
 					e.app.SetFocus(passwordsMsg)
 				})
-				for i, v := range []string{"#", "Service", "Username", "Comment"} {
-					table.SetCell(0, i, tview.NewTableCell(v).SetAlign(tview.AlignCenter).SetTextColor(tcell.ColorYellow))
+				type ColSpec struct {
+					name      string
+					expansion int
+				}
+				for i, v := range []ColSpec{{"#", 1}, {"Service", 4}, {"Username", 5}, {"Comment", 10}} {
+					table.SetCell(0, i, tview.NewTableCell(v.name).
+						SetAlign(tview.AlignCenter).
+						SetTextColor(tcell.ColorYellow).
+						SetExpansion(v.expansion),
+					)
 				}
 				for i, p := range pwds {
-					table.SetCellSimple(i+1, 0, fmt.Sprintf("%d", i+1))
+					table.SetCell(i+1, 0, tview.NewTableCell(fmt.Sprintf("%d", i+1)).SetAlign(tview.AlignCenter).SetTextColor(tcell.ColorRed))
 					table.SetCellSimple(i+1, 1, p.Service)
 					table.SetCellSimple(i+1, 2, p.Login)
 					table.SetCellSimple(i+1, 3, p.Comment)
@@ -124,13 +144,13 @@ func (e *devEzpwd) passwordsTable() tview.Primitive {
 		btn.SetBackgroundColor(tcell.ColorBlue)
 		return btn.SetText(fmt.Sprintf("[red]%c[white]%s", txt[0], txt[1:])).SetTextAlign(tview.AlignCenter).SetDynamicColors(true)
 	}
-	pages.AddPage(screenPwds, tview.NewFlex().
+	e.pages.AddPage(screenPwds, tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(
 			tview.NewFlex().
-				AddItem(tview.NewBox(), 0, 2, false).
-				AddItem(table, 0, 2, true).
-				AddItem(tview.NewBox(), 0, 2, false), 0, 1, true,
+				AddItem(tview.NewBox(), 0, 1, false).
+				AddItem(table, 0, 20, true).
+				AddItem(tview.NewBox(), 0, 1, false), 0, 1, true,
 		).
 		AddItem(
 			tview.NewFlex().
@@ -144,6 +164,5 @@ func (e *devEzpwd) passwordsTable() tview.Primitive {
 				AddItem(makeButton("Save"), 0, 4, true).
 				AddItem(tview.NewBox(), 0, 2, false),
 			1, 1, true,
-		).SetFullScreen(true), true, true)
-	return pages
+		).SetFullScreen(false), true, false)
 }
