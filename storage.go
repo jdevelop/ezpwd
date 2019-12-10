@@ -43,11 +43,11 @@ func WritePasswords(passwords []Password, writer io.Writer) error {
 	wrtr := bufio.NewWriter(writer)
 	for _, pwd := range passwords {
 		if pwd.Comment != "" {
-			if _, err := wrtr.WriteString(fmt.Sprintf("%s / %s / %s / %s \n", pwd.Service, pwd.Login, pwd.Password, pwd.Comment)); err != nil {
+			if _, err := wrtr.WriteString(fmt.Sprintf("%s / %s / %s / %s\n", pwd.Service, pwd.Login, pwd.Password, pwd.Comment)); err != nil {
 				return err
 			}
 		} else {
-			if _, err := wrtr.WriteString(fmt.Sprintf("%s / %s / %s \n", pwd.Service, pwd.Login, pwd.Password)); err != nil {
+			if _, err := wrtr.WriteString(fmt.Sprintf("%s / %s / %s\n", pwd.Service, pwd.Login, pwd.Password)); err != nil {
 				return err
 			}
 		}

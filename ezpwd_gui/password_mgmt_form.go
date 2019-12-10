@@ -2,19 +2,43 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 
+	"github.com/dchest/uniuri"
 	"github.com/gdamore/tcell"
 	"github.com/jdevelop/ezpwd"
 	"github.com/rivo/tview"
 )
 
 func (e *devEzpwd) passwordMgmtForm(id int, pwds []ezpwd.Password) *tview.Form {
+	var genPwdFunc func()
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
-	svc := tview.NewInputField().SetLabel("Service:").SetFieldWidth(20)
-	login := tview.NewInputField().SetLabel("Login:").SetFieldWidth(20)
-	pwd := tview.NewInputField().SetLabel("Password:").SetFieldWidth(20).SetMaskCharacter('*')
-	confirm := tview.NewInputField().SetLabel("Confirm:").SetFieldWidth(20).SetMaskCharacter('*')
-	comment := tview.NewInputField().SetLabel("Comment").SetFieldWidth(20)
+	svc := tview.NewInputField().SetLabel("Service:").SetFieldWidth(40)
+	login := tview.NewInputField().SetLabel("Login:").SetFieldWidth(40)
+	comment := tview.NewInputField().SetLabel("Comment:").SetFieldWidth(40)
+	setupPwgGen := func(i *tview.InputField) *tview.InputField {
+		i.SetPlaceholder("Press 'Alt-G' to generate").
+			SetInputCapture(func(k *tcell.EventKey) *tcell.EventKey {
+				if k.Modifiers()&tcell.ModAlt > 0 && k.Rune() == 'g' {
+					genPwdFunc()
+					form.SetFocus(4)
+					e.app.SetFocus(form)
+					return nil
+				} else {
+					return k
+				}
+			})
+		return i
+	}
+	pwd := setupPwgGen(tview.NewInputField().SetLabel("Password:").SetFieldWidth(40).
+		SetMaskCharacter('*'))
+	confirm := setupPwgGen(tview.NewInputField().SetLabel("Confirm:").SetFieldWidth(40).
+		SetMaskCharacter('*'))
+	genPwdFunc = func() {
+		password := uniuri.NewLen(rand.Intn(8) + 8)
+		pwd.SetText(password)
+		confirm.SetText(password)
+	}
 	form.
 		AddFormItem(svc).
 		AddFormItem(login).

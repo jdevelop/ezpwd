@@ -70,7 +70,7 @@ func (e *devEzpwd) Run() error {
 	case errors.Is(err, os.ErrNotExist):
 		form, height = e.initForm(), 9
 	default:
-		log.Fatal("can't use storage at path %s: %+v", e.passwordPath, err)
+		log.Fatalf("can't use storage at path %s: %+v", e.passwordPath, err)
 	}
 	e.passwordsTable()
 	e.pages.
