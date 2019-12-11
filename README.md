@@ -11,16 +11,8 @@ service / username / password / comment
 Easy to grep. 
 Also could be read by `gpg -d ${filename}` 
 
-### Options:
-```
-ezpwd -h         
-Usage of ezpwd:
-  -add
-        Add new password
-  -passfile string
-        Password file (default "private/test-pass.enc")
-```
+More info on [https://ezpwd.jdevelop.com/](https://ezpwd.jdevelop.com/)
 
 ### Build & install
 
-`go install ./ezpwd/`
+`go install ./...`
