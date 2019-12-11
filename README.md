@@ -1,10 +1,8 @@
-There is a plethora of password managers around, so why build another one? I've got a few simple reasons for myself:
-* I prefer to have things with not much of fancy UI, just a thing that does it's job.
-* I want to use the single password manager on Linux desktops, various Linux/FreeBSD servers ( and MacOS, since it is standard de-facto in many corporate environments ). And potentially Windows, but
-spare me this fate, please.
+There is plethora of password managers around, so why build another one? I've got a few simple reasons for myself:
+* I prefer to have things with not much of fancy UI, just something that does it's job. Unix-way sort of.
+* I want to use the single password manager on Linux desktops, various Linux/FreeBSD servers ( and MacOS, since it is standard de-facto in many corporate environments ). And potentially Windows, but spare me this fate, please.
 * I want to have my password database as simple as possible. Substantially, just a good ol' **text file**. 
-* I don't want to be locked out if my password manager app crashes or doesn't work anymore for whatever reason. Hence I want my password database be compatible with something that I can use pretty
-* much anywhere. In fact, it must be so simple that I **shouldn't ever need a password manager app to access my passwords at all**.
+* I don't want to be locked out if my password manager app crashes or doesn't work anymore for whatever reason. Hence I want my password database be compatible with something that I can use pretty much anywhere. In fact, it must be so simple that I **shouldn't ever need a password manager app to access my passwords at all**.
 
 Given all that, my design considerations were narrowed down to
 * text file
@@ -19,7 +17,7 @@ github / user@domain.com / ObHivyasvoHas0 / primary github account
 atlassian / user+atlassian@gmail.com / Rud8Vor.Drivinn / JIRA Account etc
 ```
 
-### Text interface
+## Text interface
 
 The basic user interface could be accessed by invoking `ezpwd` command in a terminal ( presuming that it is either in `$PATH` or in current directory ).
 Help is available with `-h` command line option:
@@ -36,9 +34,7 @@ Usage of ezpwd:
         Update password
 ```
 
-To start, the file needs to be created, and it could be achieved by `-add` switch. `ezpwd` will ask for the storage password ( this is the weakest point - the password needs to be strong enough and
-should be memorized - not written down. It will be used to decrypt the storage with other passwords ). The storage file will be created in `$HOME/private/test-pass.enc` so make sure that this folder
-exists.
+To start, the file needs to be created, and it could be achieved by `-add` switch. `ezpwd` will ask for the storage password ( this is the weakest point - the password needs to be strong enough and should be memorized - not written down. It will be used to decrypt the storage with other passwords ). The storage file will be created in `$HOME/private/test-pass.enc` so make sure that this folder exists.
 ```
 ezpwd -add
 Storage Password :/>
@@ -76,12 +72,9 @@ Storage Password :/>
 Choose password
 ```
 
-Once you enter the storage password - `ezpwd` will decrypt the storage and show you a table. This table doesn't have the passwords listed. Instead, `ezpwd` will **copy the password into the
-clipboard** so it will be accessible from there and you can easily paste the password into the corresponding input field. This is not too much of security here, since any application may intercept
-the changes in the clipboard and steal passwords. But yet it is more convenient rather than select the password and copy it manually.
+Once you enter the storage password - `ezpwd` will decrypt the storage and show you a table. This table doesn't have the passwords listed. Instead, `ezpwd` will **copy the password into the clipboard** so it will be accessible from there and you can easily paste the password into the corresponding input field. This is not too much of security here, since any application may intercept the changes in the clipboard and steal passwords. But yet it is more convenient rather than select the password and copy it manually.
 
-To choose the password - type the appropriate number, in this case `0` - as listed in the leftmost column. `ezpwd` will copy it into the clipboard and then exit. You can verify it by hitting `Ctrl-V` in the terminal window - that
-will insert the password for the service from the clipboard.
+To choose the password - type the appropriate number, in this case `0` - as listed in the leftmost column. `ezpwd` will copy it into the clipboard and then exit. You can verify it by hitting `Ctrl-V` in the terminal window - that will insert the password for the service from the clipboard.
 
 Update passwords works in the same way: you need to run `ezpwd -update`, then provide the **storage password** to decrypt the storage file, then specify the number corresponding to the password entry.
 ```
@@ -99,8 +92,7 @@ Enter Password :/>
 Confirm Password :/> 
 Comment :/> 
 ```
-
-provide the password index ( `0` ) and then you may update some of the information. If you don't want to update certain field - just press `Enter` and this value will remain unchanged. In the example above the name of the service was changed, the rest of the fields weren't updated. This can be verified by 
+Provide the password index (`0`) and then you may update some of the information. If you don't want to update certain field - just press `Enter` and this value will remain unchanged. In the example above the name of the service was changed, the rest of the fields weren't updated. This can be verified by 
 ```
 ezpwd
 Storage Password :/>
