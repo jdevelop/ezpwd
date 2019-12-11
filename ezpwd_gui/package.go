@@ -10,14 +10,18 @@ import (
 	"github.com/rivo/tview"
 )
 
-func modal(p tview.Primitive, width, height int) tview.Primitive {
-	return tview.NewFlex().
+func modal(p tview.Primitive, width, height int, style ...func(p *tview.Box)) tview.Primitive {
+	flex := tview.NewFlex().
 		AddItem(nil, 0, 1, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(nil, 0, 1, false).
 			AddItem(p, height, 1, true).
 			AddItem(nil, 0, 1, false), width, 1, true).
 		AddItem(nil, 0, 1, false)
+	for _, f := range style {
+		f(flex.Box)
+	}
+	return flex
 }
 
 func (e *devEzpwd) showMessage(title, msg, previousScreen string, styleUpd ...func(*tview.TextView)) {
@@ -28,9 +32,7 @@ func (e *devEzpwd) showMessage(title, msg, previousScreen string, styleUpd ...fu
 			SetTextAlign(tview.AlignCenter)
 		text.
 			SetTitle(title).
-			SetTitleColor(tcell.ColorRed).
 			SetBorder(true).
-			SetBorderColor(tcell.ColorRed).
 			SetBorderPadding(1, 1, 1, 1)
 		for _, f := range styleUpd {
 			f(text)
@@ -62,14 +64,22 @@ func (e *devEzpwd) confirm(msg, from string, ok func()) {
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
 	form.SetTitle(msg)
 	form.SetBorder(true)
+	form.SetBackgroundColor(confirmFormColors.Background)
+	form.SetLabelColor(confirmFormColors.Label)
+	form.SetButtonBackgroundColor(confirmFormColors.ButtonBackground)
+	form.SetButtonTextColor(confirmFormColors.ButtonText)
+	form.SetFieldBackgroundColor(confirmFormColors.FieldBackground)
+	form.SetFieldTextColor(confirmFormColors.FieldText)
+	cancelFunc := func() {
+		e.pages.RemovePage(screenConfirm)
+		e.pages.ShowPage(from)
+	}
+	form.SetCancelFunc(cancelFunc)
 	form.AddButton("Ok", func() {
 		ok()
 		e.pages.RemovePage(screenConfirm)
 		e.pages.ShowPage(from)
-	}).AddButton("Cancel", func() {
-		e.pages.RemovePage(screenConfirm)
-		e.pages.ShowPage(from)
-	})
+	}).AddButton("Cancel", cancelFunc)
 	e.pages.AddPage(screenConfirm, modal(form, len(msg)+4, 5), true, true)
 	e.app.SetFocus(form)
 }
@@ -89,4 +99,18 @@ func backup(file string) error {
 	}
 	_, err = io.Copy(f, src)
 	return err
+}
+
+func successMessageStyle(text *tview.TextView) {
+	text.SetBorderColor(messagesColors.SuccessBorder)
+	text.SetTitleColor(messagesColors.SuccessTitle)
+	text.SetBackgroundColor(messagesColors.SuccessBackground)
+	text.SetTextColor(messagesColors.SuccessText)
+}
+
+func errorsMessageStyle(text *tview.TextView) {
+	text.SetBorderColor(messagesColors.FailureBorder)
+	text.SetTitleColor(messagesColors.FailureTitle)
+	text.SetBackgroundColor(messagesColors.FailureBackground)
+	text.SetTextColor(messagesColors.FailureText)
 }

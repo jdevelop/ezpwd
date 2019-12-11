@@ -13,6 +13,12 @@ import (
 func (e *devEzpwd) passwordMgmtForm(id int, pwds []ezpwd.Password) *tview.Form {
 	var genPwdFunc func()
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
+	form.SetBackgroundColor(passwordMgmgFormColors.Background)
+	form.SetLabelColor(passwordMgmgFormColors.Label)
+	form.SetButtonBackgroundColor(passwordMgmgFormColors.ButtonBackground)
+	form.SetButtonTextColor(passwordMgmgFormColors.ButtonText)
+	form.SetFieldBackgroundColor(passwordMgmgFormColors.FieldBackground)
+	form.SetFieldTextColor(passwordMgmgFormColors.FieldText)
 	svc := tview.NewInputField().SetLabel("Service:").SetFieldWidth(40)
 	login := tview.NewInputField().SetLabel("Login:").SetFieldWidth(40)
 	comment := tview.NewInputField().SetLabel("Comment:").SetFieldWidth(40)
@@ -47,9 +53,12 @@ func (e *devEzpwd) passwordMgmtForm(id int, pwds []ezpwd.Password) *tview.Form {
 		AddFormItem(comment).
 		AddButton("Ok", func() {
 			e.app.QueueUpdateDraw(func() {
-				if pwd.GetText() != confirm.GetText() {
-					e.showMessage("Error", "Passwords mismatch", screenPwdManage)
-				} else {
+				switch {
+				case pwd.GetText() == "":
+					e.showMessage("Error", "Empty password", screenPwdManage, errorsMessageStyle)
+				case pwd.GetText() != confirm.GetText():
+					e.showMessage("Error", "Passwords mismatch", screenPwdManage, errorsMessageStyle)
+				default:
 					p := ezpwd.Password{
 						Service:  svc.GetText(),
 						Login:    login.GetText(),
@@ -70,12 +79,14 @@ func (e *devEzpwd) passwordMgmtForm(id int, pwds []ezpwd.Password) *tview.Form {
 			e.pages.ShowPage(screenPwds)
 		})
 	if id == -1 {
-		form.SetBorderColor(tcell.ColorBlue)
+		form.SetBorderColor(passwordMgmgFormColors.BorderAdd)
+		form.SetTitleColor(passwordMgmgFormColors.TitleAdd)
 		form.SetTitle(" Adding new login ")
 	} else {
 		p := pwds[id]
-		form.SetBorderColor(tcell.ColorRed)
-		form.SetTitle(fmt.Sprintf(" Updating %s : %s ", p.Service, p.Login)).SetTitleColor(tcell.ColorRed)
+		form.SetBorderColor(passwordMgmgFormColors.BorderUpdate)
+		form.SetTitleColor(passwordMgmgFormColors.TitleUpdate)
+		form.SetTitle(fmt.Sprintf(" Updating %s : %s ", p.Service, p.Login))
 		svc.SetText(p.Service)
 		login.SetText(p.Login)
 		pwd.SetText(p.Password)

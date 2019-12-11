@@ -16,7 +16,7 @@ import (
 
 const (
 	screenPwd       = "password"
-	screenPwds      = "passwords"
+	screenPwds      = "passwordsTable"
 	screenError     = "errors"
 	screenPwdCopied = "copied"
 	screenPwdManage = "manage"
@@ -74,11 +74,18 @@ func (e *devEzpwd) Run() error {
 	}
 	e.passwordsTable()
 	e.pages.
-		AddPage(screenPwd, modal(form, 40, height), true, true)
+		AddPage(screenPwd, modal(form, 40, height, func(p *tview.Box) {
+			p.SetBackgroundColor(globalScreenColors.Background)
+			p.SetBorderColor(globalScreenColors.Border)
+			p.SetTitleColor(globalScreenColors.Title)
+		}), true, true)
 	frame := tview.NewFrame(e.pages)
 	frame.SetBorder(true)
-	frame.AddText("`Esc` to exit dialogs without saving", false, tview.AlignRight, tcell.ColorGrey)
-	frame.AddText("`Ctrl-C` to quit application", false, tview.AlignRight, tcell.ColorGrey)
+	frame.SetBackgroundColor(globalScreenColors.Background)
+	frame.SetBorderColor(globalScreenColors.Border)
+	frame.SetTitleColor(globalScreenColors.Title)
+	frame.AddText("`Esc` to exit dialogs without saving", false, tview.AlignRight, globalScreenColors.HelpText)
+	frame.AddText("`Ctrl-C` to quit application", false, tview.AlignRight, globalScreenColors.HelpText)
 	frame.SetTitle("Storage " + e.passwordPath)
 	e.app.SetRoot(frame, true).SetFocus(form)
 	return e.app.Run()
