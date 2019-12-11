@@ -18,22 +18,22 @@ func (e *devEzpwd) passwordsTable() {
 		SetBorders(true)
 	table.SetSelectable(true, false)
 	table.SetFixed(1, 0)
-	table.SetBackgroundColor(passwordsTableColors.Background)
-	table.SetTitleColor(passwordsTableColors.Title)
-	table.SetBorderColor(passwordsTableColors.Border)
-	table.SetBordersColor(passwordsTableColors.Border)
-	table.SetSelectedStyle(passwordsTableColors.Selection, passwordsTableColors.SelectionBackground, 0)
+	table.SetBackgroundColor(DefaultColorSchema.PasswordsTableColors.Background)
+	table.SetTitleColor(DefaultColorSchema.PasswordsTableColors.Title)
+	table.SetBorderColor(DefaultColorSchema.PasswordsTableColors.Border)
+	table.SetBordersColor(DefaultColorSchema.PasswordsTableColors.Border)
+	table.SetSelectedStyle(DefaultColorSchema.PasswordsTableColors.Selection, DefaultColorSchema.PasswordsTableColors.SelectionBackground, 0)
 	filterBox := tview.NewInputField().SetLabel("Filter: ")
-	filterBox.SetBackgroundColor(passwordsTableColors.Background)
-	filterBox.SetFieldTextColor(passwordsTableColors.FieldText)
-	filterBox.SetFieldBackgroundColor(passwordsTableColors.FieldBackground)
-	filterBox.SetLabelColor(passwordsTableColors.Label)
+	filterBox.SetBackgroundColor(DefaultColorSchema.PasswordsTableColors.Background)
+	filterBox.SetFieldTextColor(DefaultColorSchema.PasswordsTableColors.FieldText)
+	filterBox.SetFieldBackgroundColor(DefaultColorSchema.PasswordsTableColors.FieldBackground)
+	filterBox.SetLabelColor(DefaultColorSchema.PasswordsTableColors.Label)
 	passwordsMsg := tview.NewTextView()
 	passwordsMsg.SetBorder(true).SetTitleAlign(tview.AlignCenter)
-	passwordsMsg.SetBackgroundColor(passwordsTableColors.CopiedBackground)
-	passwordsMsg.SetTextColor(passwordsTableColors.CopiedText)
-	passwordsMsg.SetTitleColor(passwordsTableColors.CopiedTitle)
-	passwordsMsg.SetBorderColor(passwordsTableColors.CopiedBorder)
+	passwordsMsg.SetBackgroundColor(DefaultColorSchema.PasswordsTableColors.CopiedBackground)
+	passwordsMsg.SetTextColor(DefaultColorSchema.PasswordsTableColors.CopiedText)
+	passwordsMsg.SetTitleColor(DefaultColorSchema.PasswordsTableColors.CopiedTitle)
+	passwordsMsg.SetBorderColor(DefaultColorSchema.PasswordsTableColors.CopiedBorder)
 	passwordsMsg.SetDoneFunc(func(tcell.Key) {
 		e.pages.RemovePage(screenPwdCopied)
 		e.pages.ShowPage(screenPwds)
@@ -99,7 +99,7 @@ func (e *devEzpwd) passwordsTable() {
 			for i, v := range []ColSpec{{"#", 1}, {"Service", 4}, {"Username", 5}, {"Comment", 10}} {
 				table.SetCell(0, i, tview.NewTableCell(v.name).
 					SetAlign(tview.AlignCenter).
-					SetTextColor(passwordsTableColors.Header).
+					SetTextColor(DefaultColorSchema.PasswordsTableColors.Header).
 					SetExpansion(v.expansion),
 				)
 			}
@@ -121,7 +121,7 @@ func (e *devEzpwd) passwordsTable() {
 
 		}
 		dialogsStyle := func(b *tview.Box) {
-			b.SetBackgroundColor(passwordsTableColors.Background)
+			b.SetBackgroundColor(DefaultColorSchema.PasswordsTableColors.Background)
 		}
 		table.SetInputCapture(func(key *tcell.EventKey) *tcell.EventKey {
 			switch key.Rune() {
@@ -199,25 +199,22 @@ func (e *devEzpwd) passwordsTable() {
 			})
 		}
 	}(table)
-	hexColor := func(c tcell.Color) string {
-		r, g, b := c.RGB()
-		return fmt.Sprintf("#%x%x%x", r, g, b)
-	}
 	makeButton := func(txt string) *tview.TextView {
 		btn := tview.NewTextView()
-		btn.SetBackgroundColor(passwordsTableColors.ButtonBackground)
-		btn.SetTextColor(passwordsTableColors.ButtonText)
-		return btn.SetText(fmt.Sprintf("[%s]%c[%s]%s", hexColor(passwordsTableColors.ButtonAccent), txt[0], hexColor(passwordsTableColors.ButtonText), txt[1:])).
+		btn.SetBackgroundColor(DefaultColorSchema.PasswordsTableColors.ButtonBackground)
+		btn.SetTextColor(DefaultColorSchema.PasswordsTableColors.ButtonText)
+		return btn.SetText(fmt.Sprintf("[%s]%c[%s]%s", color2Hex(DefaultColorSchema.PasswordsTableColors.ButtonAccent), txt[0],
+			color2Hex(DefaultColorSchema.PasswordsTableColors.ButtonText), txt[1:])).
 			SetTextAlign(tview.AlignCenter).SetDynamicColors(true)
 	}
 	flexColors := func(flex *tview.Flex) *tview.Flex {
-		flex.SetBackgroundColor(passwordsTableColors.Background)
-		flex.SetTitleColor(passwordsTableColors.Title)
-		flex.SetBorderColor(passwordsTableColors.Background)
+		flex.SetBackgroundColor(DefaultColorSchema.PasswordsTableColors.Background)
+		flex.SetTitleColor(DefaultColorSchema.PasswordsTableColors.Title)
+		flex.SetBorderColor(DefaultColorSchema.PasswordsTableColors.Background)
 		return flex
 	}
 	spacerBox := func() *tview.Box {
-		return tview.NewBox().SetBackgroundColor(passwordMgmgFormColors.Background)
+		return tview.NewBox().SetBackgroundColor(DefaultColorSchema.PasswordMgmtColors.Background)
 	}
 	e.pages.AddPage(screenPwds, flexColors(tview.NewFlex().
 		SetDirection(tview.FlexRow).

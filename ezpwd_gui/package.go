@@ -64,12 +64,12 @@ func (e *devEzpwd) confirm(msg, from string, ok func()) {
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
 	form.SetTitle(msg)
 	form.SetBorder(true)
-	form.SetBackgroundColor(confirmFormColors.Background)
-	form.SetLabelColor(confirmFormColors.Label)
-	form.SetButtonBackgroundColor(confirmFormColors.ButtonBackground)
-	form.SetButtonTextColor(confirmFormColors.ButtonText)
-	form.SetFieldBackgroundColor(confirmFormColors.FieldBackground)
-	form.SetFieldTextColor(confirmFormColors.FieldText)
+	form.SetBackgroundColor(DefaultColorSchema.ConfirmFormColors.Background)
+	form.SetLabelColor(DefaultColorSchema.ConfirmFormColors.Label)
+	form.SetButtonBackgroundColor(DefaultColorSchema.ConfirmFormColors.ButtonBackground)
+	form.SetButtonTextColor(DefaultColorSchema.ConfirmFormColors.ButtonText)
+	form.SetFieldBackgroundColor(DefaultColorSchema.ConfirmFormColors.FieldBackground)
+	form.SetFieldTextColor(DefaultColorSchema.ConfirmFormColors.FieldText)
 	cancelFunc := func() {
 		e.pages.RemovePage(screenConfirm)
 		e.pages.ShowPage(from)
@@ -102,15 +102,15 @@ func backup(file string) error {
 }
 
 func successMessageStyle(text *tview.TextView) {
-	text.SetBorderColor(messagesColors.SuccessBorder)
-	text.SetTitleColor(messagesColors.SuccessTitle)
-	text.SetBackgroundColor(messagesColors.SuccessBackground)
-	text.SetTextColor(messagesColors.SuccessText)
+	text.SetBorderColor(DefaultColorSchema.MessagesColors.SuccessBorder)
+	text.SetTitleColor(DefaultColorSchema.MessagesColors.SuccessTitle)
+	text.SetBackgroundColor(DefaultColorSchema.MessagesColors.SuccessBackground)
+	text.SetTextColor(DefaultColorSchema.MessagesColors.SuccessText)
 }
 
 func errorsMessageStyle(text *tview.TextView) {
-	text.SetBorderColor(messagesColors.FailureBorder)
-	text.SetTitleColor(messagesColors.FailureTitle)
-	text.SetBackgroundColor(messagesColors.FailureBackground)
-	text.SetTextColor(messagesColors.FailureText)
+	text.SetBorderColor(DefaultColorSchema.MessagesColors.FailureBorder)
+	text.SetTitleColor(DefaultColorSchema.MessagesColors.FailureTitle)
+	text.SetBackgroundColor(DefaultColorSchema.MessagesColors.FailureBackground)
+	text.SetTextColor(DefaultColorSchema.MessagesColors.FailureText)
 }

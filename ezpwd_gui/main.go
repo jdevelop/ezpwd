@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"flag"
+	easyjson "github.com/mailru/easyjson"
 	"log"
 	"os"
 	"os/user"
@@ -24,7 +25,9 @@ const (
 )
 
 var (
-	passFile = flag.String("passfile", "private/test-pass.enc", "Password file")
+	passFile   = flag.String("passfile", "private/test-pass.enc", "Password file")
+	schemaFile = flag.String("schema", "", "Color schema file")
+	dumpSchema = flag.Bool("dump-schema", false, "Print current schema and exit")
 )
 
 type devEzpwd struct {
@@ -75,17 +78,17 @@ func (e *devEzpwd) Run() error {
 	e.passwordsTable()
 	e.pages.
 		AddPage(screenPwd, modal(form, 40, height, func(p *tview.Box) {
-			p.SetBackgroundColor(globalScreenColors.Background)
-			p.SetBorderColor(globalScreenColors.Border)
-			p.SetTitleColor(globalScreenColors.Title)
+			p.SetBackgroundColor(DefaultColorSchema.GlobalScreenColors.Background)
+			p.SetBorderColor(DefaultColorSchema.GlobalScreenColors.Border)
+			p.SetTitleColor(DefaultColorSchema.GlobalScreenColors.Title)
 		}), true, true)
 	frame := tview.NewFrame(e.pages)
 	frame.SetBorder(true)
-	frame.SetBackgroundColor(globalScreenColors.Background)
-	frame.SetBorderColor(globalScreenColors.Border)
-	frame.SetTitleColor(globalScreenColors.Title)
-	frame.AddText("`Esc` to exit dialogs without saving", false, tview.AlignRight, globalScreenColors.HelpText)
-	frame.AddText("`Ctrl-C` to quit application", false, tview.AlignRight, globalScreenColors.HelpText)
+	frame.SetBackgroundColor(DefaultColorSchema.GlobalScreenColors.Background)
+	frame.SetBorderColor(DefaultColorSchema.GlobalScreenColors.Border)
+	frame.SetTitleColor(DefaultColorSchema.GlobalScreenColors.Title)
+	frame.AddText("`Esc` to exit dialogs without saving", false, tview.AlignRight, DefaultColorSchema.GlobalScreenColors.HelpText)
+	frame.AddText("`Ctrl-C` to quit application", false, tview.AlignRight, DefaultColorSchema.GlobalScreenColors.HelpText)
 	frame.SetTitle("Storage " + e.passwordPath)
 	e.app.SetRoot(frame, true).SetFocus(form)
 	return e.app.Run()
@@ -102,6 +105,23 @@ func main() {
 		encPath = filepath.Join(u.HomeDir, *passFile)
 	} else {
 		encPath = *passFile
+	}
+
+	if *schemaFile != "" {
+		f, err := os.Open(*schemaFile)
+		if err != nil {
+			log.Fatalf("Can't open schema file %s: %+v", *schemaFile, err)
+		}
+		if err := easyjson.UnmarshalFromReader(f, &DefaultColorSchema); err != nil {
+			log.Fatalf("Can't read JSON from %s: %+v", *schemaFile, err)
+		}
+	}
+
+	if *dumpSchema {
+		if _, err := easyjson.MarshalToWriter(&DefaultColorSchema, os.Stdout); err != nil {
+			log.Fatalf("Can't encode JSON: %+v", err)
+		}
+		os.Exit(0)
 	}
 
 	p, err := NewEzpwd(encPath)

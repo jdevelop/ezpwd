@@ -55,14 +55,14 @@ func (e *devEzpwd) initForm() *tview.Form {
 }
 
 func initFormColors(form *tview.Form) {
-	form.SetBackgroundColor(loginFormColors.Background)
-	form.SetTitleColor(loginFormColors.Title)
-	form.SetBorderColor(loginFormColors.Border)
-	form.SetLabelColor(loginFormColors.Label)
-	form.SetButtonBackgroundColor(loginFormColors.ButtonBackground)
-	form.SetButtonTextColor(loginFormColors.ButtonText)
-	form.SetFieldBackgroundColor(loginFormColors.FieldBackground)
-	form.SetFieldTextColor(loginFormColors.FieldText)
+	form.SetBackgroundColor(DefaultColorSchema.LoginFormColors.Background)
+	form.SetTitleColor(DefaultColorSchema.LoginFormColors.Title)
+	form.SetBorderColor(DefaultColorSchema.LoginFormColors.Border)
+	form.SetLabelColor(DefaultColorSchema.LoginFormColors.Label)
+	form.SetButtonBackgroundColor(DefaultColorSchema.LoginFormColors.ButtonBackground)
+	form.SetButtonTextColor(DefaultColorSchema.LoginFormColors.ButtonText)
+	form.SetFieldBackgroundColor(DefaultColorSchema.LoginFormColors.FieldBackground)
+	form.SetFieldTextColor(DefaultColorSchema.LoginFormColors.FieldText)
 }
 
 func (e *devEzpwd) passwordForm() *tview.Form {
