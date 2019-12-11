@@ -18,9 +18,22 @@ func (e *devEzpwd) passwordsTable() {
 		SetBorders(true)
 	table.SetSelectable(true, false)
 	table.SetFixed(1, 0)
+	table.SetBackgroundColor(passwordsTableColors.Background)
+	table.SetTitleColor(passwordsTableColors.Title)
+	table.SetBorderColor(passwordsTableColors.Border)
+	table.SetBordersColor(passwordsTableColors.Border)
+	table.SetSelectedStyle(passwordsTableColors.Selection, passwordsTableColors.SelectionBackground, 0)
 	filterBox := tview.NewInputField().SetLabel("Filter: ")
+	filterBox.SetBackgroundColor(passwordsTableColors.Background)
+	filterBox.SetFieldTextColor(passwordsTableColors.FieldText)
+	filterBox.SetFieldBackgroundColor(passwordsTableColors.FieldBackground)
+	filterBox.SetLabelColor(passwordsTableColors.Label)
 	passwordsMsg := tview.NewTextView()
 	passwordsMsg.SetBorder(true).SetTitleAlign(tview.AlignCenter)
+	passwordsMsg.SetBackgroundColor(passwordsTableColors.CopiedBackground)
+	passwordsMsg.SetTextColor(passwordsTableColors.CopiedText)
+	passwordsMsg.SetTitleColor(passwordsTableColors.CopiedTitle)
+	passwordsMsg.SetBorderColor(passwordsTableColors.CopiedBorder)
 	passwordsMsg.SetDoneFunc(func(tcell.Key) {
 		e.pages.RemovePage(screenPwdCopied)
 		e.pages.ShowPage(screenPwds)
@@ -86,7 +99,7 @@ func (e *devEzpwd) passwordsTable() {
 			for i, v := range []ColSpec{{"#", 1}, {"Service", 4}, {"Username", 5}, {"Comment", 10}} {
 				table.SetCell(0, i, tview.NewTableCell(v.name).
 					SetAlign(tview.AlignCenter).
-					SetTextColor(tcell.ColorYellow).
+					SetTextColor(passwordsTableColors.Header).
 					SetExpansion(v.expansion),
 				)
 			}
@@ -98,7 +111,7 @@ func (e *devEzpwd) passwordsTable() {
 				if filter != "" && !(equals(p.Service, filter) || equals(p.Comment, filter) || equals(p.Login, filter)) {
 					continue
 				}
-				table.SetCell(i, 0, tview.NewTableCell(fmt.Sprintf("%d", i)).SetAlign(tview.AlignCenter).SetTextColor(tcell.ColorRed))
+				table.SetCell(i, 0, tview.NewTableCell(fmt.Sprintf("%d", i)).SetAlign(tview.AlignCenter))
 				table.SetCellSimple(i, 1, p.Service)
 				table.SetCellSimple(i, 2, p.Login)
 				table.SetCellSimple(i, 3, p.Comment)
@@ -107,12 +120,15 @@ func (e *devEzpwd) passwordsTable() {
 			table.ScrollToBeginning()
 
 		}
+		dialogsStyle := func(b *tview.Box) {
+			b.SetBackgroundColor(passwordsTableColors.Background)
+		}
 		table.SetInputCapture(func(key *tcell.EventKey) *tcell.EventKey {
 			switch key.Rune() {
 			case 'a', 'A':
 				e.app.QueueUpdateDraw(func() {
 					e.pages.AddPage(screenPwdManage,
-						modal(e.passwordMgmtForm(-1, *currentPasswords), 50, 15),
+						modal(e.passwordMgmtForm(-1, *currentPasswords), 50, 15, dialogsStyle),
 						true, true,
 					)
 					e.pages.ShowPage(screenPwdManage)
@@ -124,7 +140,7 @@ func (e *devEzpwd) passwordsTable() {
 				}
 				e.app.QueueUpdateDraw(func() {
 					e.pages.AddPage(screenPwdManage,
-						modal(e.passwordMgmtForm(r-1, *currentPasswords), 50, 15),
+						modal(e.passwordMgmtForm(r-1, *currentPasswords), 50, 15, dialogsStyle),
 						true, true,
 					)
 					e.pages.ShowPage(screenPwdManage)
@@ -149,28 +165,25 @@ func (e *devEzpwd) passwordsTable() {
 					case err == nil || errors.Is(err, os.ErrNotExist):
 						// do nothing
 					default:
-						e.showMessage("Error", fmt.Sprintf("Can't backup password file: %+v", err), screenPwds)
+						e.showMessage("Error", fmt.Sprintf("Can't backup password file: %+v", err), screenPwds, errorsMessageStyle)
 						break
 					}
 				}
 				var buffer bytes.Buffer
 				if err := ezpwd.WritePasswords(*currentPasswords, &buffer); err != nil {
-					e.showMessage("Error", fmt.Sprintf("Can't backup password file: %+v", err), screenPwds)
+					e.showMessage("Error", fmt.Sprintf("Can't backup password file: %+v", err), screenPwds, errorsMessageStyle)
 					break
 				}
 				_file, err := os.Create(e.passwordPath)
 				if err != nil {
-					e.showMessage("Error", fmt.Sprintf("Can't open password file '%s': %+v", e.passwordPath, err), screenPwds)
+					e.showMessage("Error", fmt.Sprintf("Can't open password file '%s': %+v", e.passwordPath, err), screenPwds, errorsMessageStyle)
 					break
 				}
 				defer _file.Close()
 				if err := e.crypto.Encrypt(&buffer, _file); err != nil {
-					e.showMessage("Error", fmt.Sprintf("Can't encrypt password file '%s': %+v", e.passwordPath, err), screenPwds)
+					e.showMessage("Error", fmt.Sprintf("Can't encrypt password file '%s': %+v", e.passwordPath, err), screenPwds, errorsMessageStyle)
 				} else {
-					e.showMessage("Success!", fmt.Sprintf("Passwords saved successfully"), screenPwds, func(text *tview.TextView) {
-						text.SetBorderColor(tcell.ColorGreen)
-						text.SetTitleColor(tcell.ColorGreen)
-					})
+					e.showMessage("Success!", fmt.Sprintf("Passwords saved successfully"), screenPwds, successMessageStyle)
 				}
 			}
 			return key
@@ -186,33 +199,48 @@ func (e *devEzpwd) passwordsTable() {
 			})
 		}
 	}(table)
+	hexColor := func(c tcell.Color) string {
+		r, g, b := c.RGB()
+		return fmt.Sprintf("#%x%x%x", r, g, b)
+	}
 	makeButton := func(txt string) *tview.TextView {
 		btn := tview.NewTextView()
-		btn.SetBackgroundColor(tcell.ColorBlue)
-		return btn.SetText(fmt.Sprintf("[red]%c[white]%s", txt[0], txt[1:])).SetTextAlign(tview.AlignCenter).SetDynamicColors(true)
+		btn.SetBackgroundColor(passwordsTableColors.ButtonBackground)
+		btn.SetTextColor(passwordsTableColors.ButtonText)
+		return btn.SetText(fmt.Sprintf("[%s]%c[%s]%s", hexColor(passwordsTableColors.ButtonAccent), txt[0], hexColor(passwordsTableColors.ButtonText), txt[1:])).
+			SetTextAlign(tview.AlignCenter).SetDynamicColors(true)
 	}
-	e.pages.AddPage(screenPwds, tview.NewFlex().
+	flexColors := func(flex *tview.Flex) *tview.Flex {
+		flex.SetBackgroundColor(passwordsTableColors.Background)
+		flex.SetTitleColor(passwordsTableColors.Title)
+		flex.SetBorderColor(passwordsTableColors.Background)
+		return flex
+	}
+	spacerBox := func() *tview.Box {
+		return tview.NewBox().SetBackgroundColor(passwordMgmgFormColors.Background)
+	}
+	e.pages.AddPage(screenPwds, flexColors(tview.NewFlex().
 		SetDirection(tview.FlexRow).
 		AddItem(filterBox, 2, 0, false).
 		AddItem(
-			tview.NewFlex().
-				AddItem(tview.NewBox(), 0, 1, false).
+			flexColors(tview.NewFlex().
+				AddItem(spacerBox(), 0, 1, false).
 				AddItem(table, 0, 20, true).
-				AddItem(tview.NewBox(), 0, 1, false), 0, 1, true,
-		).
+				AddItem(spacerBox(), 0, 1, false)), 0, 1, true,
+		)).
 		AddItem(
-			tview.NewFlex().
-				AddItem(tview.NewBox(), 0, 2, false).
+			flexColors(tview.NewFlex().
+				AddItem(spacerBox(), 0, 2, false).
 				AddItem(makeButton("Filter"), 0, 4, true).
-				AddItem(tview.NewBox(), 0, 2, false).
+				AddItem(spacerBox(), 0, 2, false).
 				AddItem(makeButton("Add"), 0, 4, true).
-				AddItem(tview.NewBox(), 0, 2, false).
+				AddItem(spacerBox(), 0, 2, false).
 				AddItem(makeButton("Update"), 0, 4, true).
-				AddItem(tview.NewBox(), 0, 1, false).
+				AddItem(spacerBox(), 0, 1, false).
 				AddItem(makeButton("Delete"), 0, 4, true).
-				AddItem(tview.NewBox(), 0, 2, false).
+				AddItem(spacerBox(), 0, 2, false).
 				AddItem(makeButton("Save"), 0, 4, true).
-				AddItem(tview.NewBox(), 0, 2, false),
+				AddItem(spacerBox(), 0, 2, false)),
 			1, 1, true,
 		).SetFullScreen(false), true, false)
 }

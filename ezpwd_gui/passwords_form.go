@@ -13,6 +13,7 @@ import (
 
 func (e *devEzpwd) initForm() *tview.Form {
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
+	initFormColors(form)
 	pwd := tview.NewInputField().
 		SetLabel("Password").
 		SetFieldWidth(20).
@@ -38,6 +39,7 @@ func (e *devEzpwd) initForm() *tview.Form {
 		e.crypto = crypto
 		e.passwordsChan <- []ezpwd.Password{}
 	}
+	form.SetCancelFunc(e.app.Stop)
 	form.
 		AddFormItem(pwd).
 		AddFormItem(confirm).
@@ -52,8 +54,20 @@ func (e *devEzpwd) initForm() *tview.Form {
 	return form
 }
 
+func initFormColors(form *tview.Form) {
+	form.SetBackgroundColor(loginFormColors.Background)
+	form.SetTitleColor(loginFormColors.Title)
+	form.SetBorderColor(loginFormColors.Border)
+	form.SetLabelColor(loginFormColors.Label)
+	form.SetButtonBackgroundColor(loginFormColors.ButtonBackground)
+	form.SetButtonTextColor(loginFormColors.ButtonText)
+	form.SetFieldBackgroundColor(loginFormColors.FieldBackground)
+	form.SetFieldTextColor(loginFormColors.FieldText)
+}
+
 func (e *devEzpwd) passwordForm() *tview.Form {
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
+	initFormColors(form)
 	form.SetCancelFunc(func() {
 		e.app.Stop()
 	})
@@ -98,13 +112,11 @@ func (e *devEzpwd) passwordForm() *tview.Form {
 				e.app.Stop()
 			}
 		})
+	btnOk := tview.NewButton("Unlock").SetSelectedFunc(func() { onComplete(pwd.GetText()) })
+	btnOk.SetBackgroundColor(tcell.ColorRed)
 	form.AddFormItem(pwd).
-		AddButton("Unlock", func() {
-			onComplete(pwd.GetText())
-		}).
-		AddButton("Quit", func() {
-			e.app.Stop()
-		})
+		AddButton("Unlock", func() { onComplete(pwd.GetText()) }).
+		AddButton("Quit", e.app.Stop)
 	form.SetBorder(true).SetTitle(" Unlock password storage ").SetTitleAlign(tview.AlignCenter)
 	form.SetFocus(0)
 	return form
