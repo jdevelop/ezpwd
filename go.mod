@@ -7,6 +7,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dchest/uniuri v0.0.0-20160212164326-8902c56451e9
 	github.com/gdamore/tcell v1.3.0
+	github.com/mailru/easyjson v0.7.0
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/rivo/tview v0.0.0-20191129065140-82b05c9fb329
 	github.com/stretchr/testify v1.4.0
