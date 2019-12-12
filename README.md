@@ -24,3 +24,7 @@ For basic prompt-based text interface refer to [Text Interface](textview.md)
 ## Rich text UI interface
 
 For more sophisticated interface refer to [Text User Interface](tview.md)
+
+# Download
+
+Versions for MacOS, Windows and Linux are available on [release page](https://github.com/jdevelop/ezpwd/releases/)
