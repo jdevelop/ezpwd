@@ -43,7 +43,7 @@ func (e *devEzpwd) passwordsTable() {
 		var (
 			currentPasswords *[]ezpwd.Password
 			drawTable        func(string)
-			mappings         map[int]int
+			mappings         []int
 		)
 
 		t.SetDoneFunc(func(k tcell.Key) {
@@ -81,16 +81,12 @@ func (e *devEzpwd) passwordsTable() {
 		})
 		drawTable = func(filter string) {
 			t.Clear()
-			mappings = make(map[int]int)
+			mappings = make([]int, 0)
 			table.SetSelectedFunc(func(row, col int) {
 				if row == 0 {
 					return
 				}
-				if idx, ok := mappings[row]; ok {
-					row = idx
-				} else {
-					row -= 1
-				}
+				row = mappings[row-1]
 				clipboard.WriteAll((*currentPasswords)[row].Password)
 				var content = fmt.Sprintf(" Password copied to clipboard '%s : %s' ", (*currentPasswords)[row].Service, (*currentPasswords)[row].Login)
 				passwordsMsg.SetText(content)
@@ -118,7 +114,7 @@ func (e *devEzpwd) passwordsTable() {
 				if filter != "" && !(equals(p.Service, filter) || equals(p.Comment, filter) || equals(p.Login, filter)) {
 					continue
 				}
-				mappings[i] = idx
+				mappings = append(mappings, idx)
 				table.SetCell(i, 0, tview.NewTableCell(fmt.Sprintf("%d", i)).SetAlign(tview.AlignCenter))
 				table.SetCellSimple(i, 1, p.Service)
 				table.SetCellSimple(i, 2, p.Login)
@@ -158,10 +154,11 @@ func (e *devEzpwd) passwordsTable() {
 				if r == 0 || r-1 >= len(*currentPasswords) {
 					break
 				}
-				e.confirm(fmt.Sprintf(" Remove service '%s : %s'? ", (*currentPasswords)[r-1].Service, (*currentPasswords)[r-1].Login), screenPwds, func() {
+				r = mappings[r-1]
+				e.confirm(fmt.Sprintf(" Remove service '%s : %s'? ", (*currentPasswords)[r].Service, (*currentPasswords)[r].Login), screenPwds, func() {
 					e.app.QueueUpdateDraw(func() {
-						*currentPasswords = append((*currentPasswords)[:r-1], (*currentPasswords)[r:]...)
-						drawTable("")
+						*currentPasswords = append((*currentPasswords)[:r], (*currentPasswords)[r+1:]...)
+						drawTable(filterBox.GetText())
 					})
 				})
 			case 'f', 'F':
