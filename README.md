@@ -20,3 +20,7 @@ atlassian / user+atlassian@gmail.com / Rud8Vor.Drivinn / JIRA Account etc
 ## Text interface
 
 For basic prompt-based text interface refer to [Text Interface](textview.md)
+
+## Rich text UI interface
+
+For more sophisticated interface refer to [Text User Interface](tview.md)
