@@ -43,6 +43,7 @@ func (e *devEzpwd) passwordsTable() {
 		var (
 			currentPasswords *[]ezpwd.Password
 			drawTable        func(string)
+			mappings         map[int]int
 		)
 
 		t.SetDoneFunc(func(k tcell.Key) {
@@ -80,12 +81,18 @@ func (e *devEzpwd) passwordsTable() {
 		})
 		drawTable = func(filter string) {
 			t.Clear()
+			mappings = make(map[int]int)
 			table.SetSelectedFunc(func(row, col int) {
 				if row == 0 {
 					return
 				}
-				clipboard.WriteAll((*currentPasswords)[row-1].Password)
-				var content = fmt.Sprintf(" Password copied to clipboard '%s : %s' ", (*currentPasswords)[row-1].Service, (*currentPasswords)[row-1].Login)
+				if idx, ok := mappings[row]; ok {
+					row = idx
+				} else {
+					row -= 1
+				}
+				clipboard.WriteAll((*currentPasswords)[row].Password)
+				var content = fmt.Sprintf(" Password copied to clipboard '%s : %s' ", (*currentPasswords)[row].Service, (*currentPasswords)[row].Login)
 				passwordsMsg.SetText(content)
 				mp := modal(passwordsMsg, len(content)+2, 3)
 				e.pages.AddPage(screenPwdCopied, mp, true, true)
@@ -107,10 +114,11 @@ func (e *devEzpwd) passwordsTable() {
 			equals := func(src, substr string) bool {
 				return strings.Contains(strings.ToUpper(src), strings.ToUpper(substr))
 			}
-			for _, p := range *currentPasswords {
+			for idx, p := range *currentPasswords {
 				if filter != "" && !(equals(p.Service, filter) || equals(p.Comment, filter) || equals(p.Login, filter)) {
 					continue
 				}
+				mappings[i] = idx
 				table.SetCell(i, 0, tview.NewTableCell(fmt.Sprintf("%d", i)).SetAlign(tview.AlignCenter))
 				table.SetCellSimple(i, 1, p.Service)
 				table.SetCellSimple(i, 2, p.Login)
