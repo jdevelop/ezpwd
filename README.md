@@ -1,13 +1,13 @@
-There is plethora of password managers around, so why build another one? I've got a few simple reasons for myself:
-* I prefer to have things with not much of fancy UI, just something that does it's job. Unix-way sort of.
-* I want to use the single password manager on Linux desktops, various Linux/FreeBSD servers ( and MacOS, since it is standard de-facto in many corporate environments ). And potentially Windows, but spare me this fate, please.
-* I want to have my password database as simple as possible. Substantially, just a good ol' **text file**. 
-* I don't want to be locked out if my password manager app crashes or doesn't work anymore for whatever reason. Hence I want my password database be compatible with something that I can use pretty much anywhere. In fact, it must be so simple that I **shouldn't ever need a password manager app to access my passwords at all**.
+There are a plethora of password managers, so why build another? I’ve got a few simple reasons why I think there is room for 1 more.
+* Fancy UI is overrated; I just need something that works. Unix-way is the real thing.
+* I want to use a single password manager across operating systems like Linux desktops, Linux/FreeBSD servers (and MacOS, since it is standard de-facto in many corporate environments ). And potentially Windows, but spare me this fate, please.
+*  I want to have my password database as simple as possible. Essentially, just a good ol’ **text file**.
+* I don’t want to risk getting locked out of my password manager if the app crashes or is not supported anymore. Hence I want my password database to be compatible with something that I can use pretty much anywhere. In fact, it must be so simple that I **shouldn't ever need a password manager app to access my passwords at all**.
 
-Given all that, my design considerations were narrowed down to
+So I have narrowed down my design considerations which consist of:
 * text file
 * encrypted by GnuPG
-* with format of `service / username|email|anything / password / comment`. This format I've been using for more than 15 years myself, so it is time-proof. At least for me.
+* with format of `service / username|email|anything / password / comment`. This format I’ve been using for more than 15 years myself, so it is time-proof. At least for me.
 * [Golang](https://golang.org/) - clean, simple, better C, great language ( generics though... but who cares? )
 * [Tview](https://github.com/rivo/tview) - the UI for the people who are not really comfortable with the hardcore command line and ASCII art.
 
@@ -34,7 +34,7 @@ Usage of ezpwd:
         Update password
 ```
 
-To start, the file needs to be created, and it could be achieved by `-add` switch. `ezpwd` will ask for the storage password ( this is the weakest point - the password needs to be strong enough and should be memorized - not written down. It will be used to decrypt the storage with other passwords ). The storage file will be created in `$HOME/private/test-pass.enc` so make sure that this folder exists.
+To start, the file needs to be created, and it could be achieved by `-add` switch. `ezpwd` will ask for the storage password ( this is the first point of failure - the password needs to be strong enough and should be memoized - not written down. It will be used to decrypt the storage with other passwords ). The storage file will be created in `$HOME/private/test-pass.enc` so make sure that this folder exists.
 ```
 ezpwd -add
 Storage Password :/>
