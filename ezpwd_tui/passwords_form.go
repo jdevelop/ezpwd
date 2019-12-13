@@ -24,16 +24,16 @@ func (e *devEzpwd) initForm() *tview.Form {
 		SetMaskCharacter('*')
 	onComplete := func() {
 		if pwd.GetText() == "" {
-			e.showMessage("Error", "Password can't be empty", screenPwd)
+			e.showMessage("Error", "Password can't be empty", screenPwd, errorsMessageStyle)
 			return
 		}
 		if pwd.GetText() != confirm.GetText() {
-			e.showMessage("Error", "Password doesn't match confirmation", screenPwd)
+			e.showMessage("Error", "Password doesn't match confirmation", screenPwd, errorsMessageStyle)
 			return
 		}
 		crypto, err := ezpwd.NewCrypto([]byte(pwd.GetText()))
 		if err != nil {
-			e.showMessage("Error", fmt.Sprintf("can't create crypto: %v", err), screenPwd)
+			e.showMessage("Error", fmt.Sprintf("can't create crypto: %v", err), screenPwd, errorsMessageStyle)
 			return
 		}
 		e.crypto = crypto
@@ -74,7 +74,7 @@ func (e *devEzpwd) passwordForm() *tview.Form {
 	onComplete := func(pwd string) {
 		crypto, err := ezpwd.NewCrypto([]byte(pwd))
 		if err != nil {
-			e.showMessage("Error", fmt.Sprintf("can't create crypto: %v", err), screenPwd)
+			e.showMessage("Error", fmt.Sprintf("can't create crypto: %v", err), screenPwd, errorsMessageStyle)
 			return
 		}
 		f, err := os.Open(e.passwordPath)
@@ -82,11 +82,11 @@ func (e *devEzpwd) passwordForm() *tview.Form {
 		case err == nil:
 			var buf bytes.Buffer
 			if err := crypto.Decrypt(f, &buf); err != nil {
-				e.showMessage("Error", fmt.Sprintf("can't descrypt storage: %v", err), screenPwd)
+				e.showMessage("Error", fmt.Sprintf("can't descrypt storage: %v", err), screenPwd, errorsMessageStyle)
 				return
 			}
 			if pwds, err := ezpwd.ReadPasswords(&buf); err != nil {
-				e.showMessage("Error", fmt.Sprintf("can't read passwords: %v", err), screenPwd)
+				e.showMessage("Error", fmt.Sprintf("can't read passwords: %v", err), screenPwd, errorsMessageStyle)
 				return
 			} else {
 				e.crypto = crypto
@@ -96,7 +96,7 @@ func (e *devEzpwd) passwordForm() *tview.Form {
 			e.crypto = crypto
 			e.passwordsChan <- []ezpwd.Password{}
 		default:
-			e.showMessage("Error", fmt.Sprintf("can't open file: %s : %v : %T", e.passwordPath, err, err), screenPwd)
+			e.showMessage("Error", fmt.Sprintf("can't open file: %s : %v : %T", e.passwordPath, err, err), screenPwd, errorsMessageStyle)
 		}
 	}
 	pwd := tview.NewInputField().

@@ -10,8 +10,8 @@ dist:
 	mkdir dist
 
 darwin:
-	CGO_ENABLED=0 GOOS=darwin go build ${BUILDARGS} -o dist/ezpwd_darwin ./ezpwd/
-	CGO_ENABLED=0 GOOS=darwin go build ${BUILDARGS} -o dist/ezpwd_tui_darwin ./ezpwd_tui/
+	CGO_ENABLED=0 GOOS=darwin go build ${BUILDARGS} -o dist/ezpwd_macos ./ezpwd/
+	CGO_ENABLED=0 GOOS=darwin go build ${BUILDARGS} -o dist/ezpwd_tui_macos ./ezpwd_tui/
 
 linux:
 	CGO_ENABLED=0 GOOS=linux go build ${BUILDARGS} -o dist/ezpwd_linux ./ezpwd/
