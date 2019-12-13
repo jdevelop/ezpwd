@@ -154,10 +154,10 @@ var (
 			SuccessTitle:      tcell.ColorNavajoWhite,
 			SuccessBorder:     tcell.ColorGray,
 			SuccessText:       tcell.ColorGreen,
-			FailureBackground: BackgroundColor,
+			FailureBackground: tcell.ColorBlack,
 			FailureTitle:      tcell.ColorRed,
 			FailureBorder:     tcell.ColorRed,
-			FailureText:       tcell.ColorRed,
+			FailureText:       tcell.ColorOrangeRed,
 		},
 	}
 )

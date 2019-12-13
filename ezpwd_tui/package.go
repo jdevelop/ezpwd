@@ -39,15 +39,15 @@ func (e *devEzpwd) showMessage(title, msg, previousScreen string, styleUpd ...fu
 		}
 		flex := tview.NewFlex().
 			SetDirection(tview.FlexRow).
-			AddItem(nil, 0, 2, false).
+			AddItem(nil, 0, 1, false).
 			AddItem(
 				tview.NewFlex().
-					AddItem(nil, 0, 2, false).
+					AddItem(nil, 0, 1, false).
 					AddItem(text, len(msg)+6, 0, true).
-					AddItem(nil, 0, 2, false),
-				6, 0, true,
+					AddItem(nil, 0, 1, false),
+				5, 0, true,
 			).
-			AddItem(nil, 0, 2, false)
+			AddItem(nil, 0, 1, false)
 		e.pages.AddPage(screenError, flex, true, true)
 		text.SetDoneFunc(func(k tcell.Key) {
 			switch k {
