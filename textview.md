@@ -52,8 +52,7 @@ Storage Password :/>
 +---+---------+-----------------+------------------------+
 Choose password
 ```
-
-Once you enter the storage password - `ezpwd` will decrypt the storage and show you a table. This table doesn't have the passwords listed. Instead, `ezpwd` will **copy the password into the clipboard** so it will be accessible from there and you can easily paste the password into the corresponding input field. This is not too much of security here, since any application may intercept the changes in the clipboard and steal passwords. But yet it is more convenient rather than select the password and copy it manually.
+Once you enter the storage password - ezpwd will decrypt the storage and show you a table. This table doesn’t have the passwords listed. Instead, ezpwd will **copy the password into the clipboard** so it will be accessible from there and you can easily paste the password into the corresponding input field. This is more convenient than selecting individual passwords and copying them manually. It is important to note that there are malicious tools that can intercept changes made to the clipboard, so be sure you are using a machine that has not been compromised.
 
 To choose the password - type the appropriate number, in this case `0` - as listed in the leftmost column. `ezpwd` will copy it into the clipboard and then exit. You can verify it by hitting `Ctrl-V` in the terminal window - that will insert the password for the service from the clipboard.
 
