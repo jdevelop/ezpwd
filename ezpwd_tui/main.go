@@ -25,7 +25,7 @@ const (
 )
 
 var (
-	passFile   = flag.String("passfile", "private/test-pass.enc", "Password file")
+	passFile   = flag.String("passfile", "private/pass.enc", "Password file")
 	schemaFile = flag.String("schema", "", "Color schema file")
 	dumpSchema = flag.Bool("dump-schema", false, "Print current schema and exit")
 )
@@ -105,6 +105,21 @@ func main() {
 		encPath = filepath.Join(u.HomeDir, *passFile)
 	} else {
 		encPath = *passFile
+	}
+
+	dir := filepath.Dir(encPath)
+
+	switch d, err := os.Stat(dir); err {
+	case nil:
+		if !d.IsDir() {
+			log.Fatalf("Can't use folder '%s'", dir)
+		}
+	case os.ErrNotExist:
+		if err := os.MkdirAll(dir, 0700); err != nil {
+			log.Fatalf("Can't create folder '%s'", dir)
+		}
+	default:
+		log.Fatalf("Fatal error, aborting: %+v", err)
 	}
 
 	if *schemaFile != "" {

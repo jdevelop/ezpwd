@@ -23,7 +23,7 @@ import (
 var (
 	add      = flag.Bool("add", false, "Add new password")
 	list     = flag.Bool("list", false, "List all passwords")
-	passFile = flag.String("passfile", "private/test-pass.enc", "Password file")
+	passFile = flag.String("passfile", "private/pass.enc", "Password file")
 	upd      = flag.Bool("update", false, "Update password")
 )
 
@@ -37,6 +37,21 @@ func main() {
 	}
 
 	encPath := filepath.Join(u.HomeDir, *passFile)
+	dir := filepath.Dir(encPath)
+
+	switch d, err := os.Stat(dir); err {
+	case nil:
+		if !d.IsDir() {
+			log.Fatalf("Can't use folder '%s'", dir)
+		}
+	case os.ErrNotExist:
+		if err := os.MkdirAll(dir, 0700); err != nil {
+			log.Fatalf("Can't create folder '%s'", dir)
+		}
+	default:
+		log.Fatalf("Fatal error, aborting: %+v", err)
+	}
+
 	fmt.Print("Storage Password :/> ")
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 
