@@ -28,6 +28,7 @@ var (
 	passFile   = flag.String("passfile", "private/pass.enc", "Password file")
 	schemaFile = flag.String("schema", "", "Color schema file")
 	dumpSchema = flag.Bool("dump-schema", false, "Print current schema and exit")
+	darkSchema = flag.Bool("dark", false, "Dark colors")
 )
 
 type devEzpwd struct {
@@ -122,7 +123,8 @@ func main() {
 		log.Fatalf("Fatal error, aborting: %+v", err)
 	}
 
-	if *schemaFile != "" {
+	switch {
+	case *schemaFile != "":
 		f, err := os.Open(*schemaFile)
 		if err != nil {
 			log.Fatalf("Can't open schema file %s: %+v", *schemaFile, err)
@@ -130,6 +132,10 @@ func main() {
 		if err := easyjson.UnmarshalFromReader(f, &DefaultColorSchema); err != nil {
 			log.Fatalf("Can't read JSON from %s: %+v", *schemaFile, err)
 		}
+	case *darkSchema:
+		DefaultColorSchema = DarkColorSchema
+	default:
+		DefaultColorSchema = LightColorSchema
 	}
 
 	if *dumpSchema {

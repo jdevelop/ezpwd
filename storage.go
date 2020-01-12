@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 )
 
-var splitter = regexp.MustCompile("\\s*/\\s*")
+var splitter = regexp.MustCompile("\\s/\\s")
 
 type Password struct {
 	Service  string
@@ -43,11 +44,17 @@ func WritePasswords(passwords []Password, writer io.Writer) error {
 	wrtr := bufio.NewWriter(writer)
 	for _, pwd := range passwords {
 		if pwd.Comment != "" {
-			if _, err := wrtr.WriteString(fmt.Sprintf("%s / %s / %s / %s\n", pwd.Service, pwd.Login, pwd.Password, pwd.Comment)); err != nil {
+			if _, err := wrtr.WriteString(fmt.Sprintf("%s / %s / %s / %s\n", strings.TrimSpace(pwd.Service),
+				strings.TrimSpace(pwd.Login), strings.TrimSpace(pwd.Password), strings.TrimSpace(pwd.Comment)),
+			); err != nil {
 				return err
 			}
 		} else {
-			if _, err := wrtr.WriteString(fmt.Sprintf("%s / %s / %s\n", pwd.Service, pwd.Login, pwd.Password)); err != nil {
+			if _, err := wrtr.WriteString(fmt.Sprintf("%s / %s / %s\n",
+				strings.TrimSpace(pwd.Service),
+				strings.TrimSpace(pwd.Login),
+				strings.TrimSpace(pwd.Password)),
+			); err != nil {
 				return err
 			}
 		}

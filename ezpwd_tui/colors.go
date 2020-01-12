@@ -89,12 +89,14 @@ type colorSchema struct {
 }
 
 var (
-	BackgroundColor = tcell.NewRGBColor(0x87, 0x87, 0x5f)
-	FormBolderColor = tcell.NewRGBColor(0xff, 0xf6, 0xe9)
+	BackgroundColorLight = tcell.NewRGBColor(0x87, 0x87, 0x5f)
+	BackgroundColorDark  = tcell.NewRGBColor(0x07, 0x36, 0x42)
 
-	DefaultColorSchema = colorSchema{
+	DefaultColorSchema colorSchema
+
+	LightColorSchema = colorSchema{
 		LoginFormColors: loginForm{
-			Background:       BackgroundColor,
+			Background:       BackgroundColorLight,
 			Title:            tcell.ColorWhiteSmoke,
 			Border:           tcell.ColorGray,
 			Label:            tcell.ColorBlack,
@@ -104,7 +106,7 @@ var (
 			FieldText:        tcell.ColorBlack,
 		},
 		ConfirmFormColors: confirmForm{
-			Background:       BackgroundColor,
+			Background:       BackgroundColorLight,
 			Title:            tcell.ColorWhiteSmoke,
 			Border:           tcell.ColorGray,
 			Label:            tcell.ColorBlack,
@@ -114,7 +116,7 @@ var (
 			FieldText:        tcell.ColorBlack,
 		},
 		PasswordMgmtColors: passwordMgmtForm{
-			Background:       BackgroundColor,
+			Background:       BackgroundColorLight,
 			TitleAdd:         tcell.ColorWhiteSmoke,
 			TitleUpdate:      tcell.ColorMistyRose,
 			BorderAdd:        tcell.ColorGray,
@@ -126,13 +128,13 @@ var (
 			FieldText:        tcell.ColorBlack,
 		},
 		GlobalScreenColors: globalScreen{
-			Background: BackgroundColor,
+			Background: BackgroundColorLight,
 			Title:      tcell.ColorNavajoWhite,
 			Border:     tcell.ColorGray,
 			HelpText:   tcell.ColorLightGray,
 		},
 		PasswordsTableColors: passwordsTable{
-			Background:          BackgroundColor,
+			Background:          BackgroundColorLight,
 			Title:               tcell.ColorWhiteSmoke,
 			Border:              tcell.ColorGray,
 			Label:               tcell.ColorBlack,
@@ -150,7 +152,75 @@ var (
 			CopiedBorder:        tcell.ColorWhiteSmoke,
 		},
 		MessagesColors: messages{
-			SuccessBackground: BackgroundColor,
+			SuccessBackground: BackgroundColorLight,
+			SuccessTitle:      tcell.ColorNavajoWhite,
+			SuccessBorder:     tcell.ColorGray,
+			SuccessText:       tcell.ColorGreen,
+			FailureBackground: tcell.ColorBlack,
+			FailureTitle:      tcell.ColorRed,
+			FailureBorder:     tcell.ColorRed,
+			FailureText:       tcell.ColorOrangeRed,
+		},
+	}
+	DarkColorSchema = colorSchema{
+		LoginFormColors: loginForm{
+			Background:       BackgroundColorDark,
+			Title:            tcell.ColorWhiteSmoke,
+			Border:           tcell.ColorGray,
+			Label:            tcell.ColorWheat,
+			ButtonBackground: tcell.ColorDarkGray,
+			ButtonText:       tcell.ColorWhite,
+			FieldBackground:  tcell.ColorBeige,
+			FieldText:        tcell.ColorBlack,
+		},
+		ConfirmFormColors: confirmForm{
+			Background:       BackgroundColorDark,
+			Title:            tcell.ColorWhiteSmoke,
+			Border:           tcell.ColorGray,
+			Label:            tcell.ColorWhiteSmoke,
+			ButtonBackground: tcell.ColorDarkGray,
+			ButtonText:       tcell.ColorWhite,
+			FieldBackground:  tcell.ColorBeige,
+			FieldText:        tcell.ColorBlack,
+		},
+		PasswordMgmtColors: passwordMgmtForm{
+			Background:       BackgroundColorDark,
+			TitleAdd:         tcell.ColorWhiteSmoke,
+			TitleUpdate:      tcell.ColorMistyRose,
+			BorderAdd:        tcell.ColorGray,
+			BorderUpdate:     tcell.ColorMistyRose,
+			Label:            tcell.ColorWhiteSmoke,
+			ButtonBackground: tcell.ColorDarkGray,
+			ButtonText:       tcell.ColorWhite,
+			FieldBackground:  tcell.ColorBeige,
+			FieldText:        tcell.ColorBlack,
+		},
+		GlobalScreenColors: globalScreen{
+			Background: BackgroundColorDark,
+			Title:      tcell.ColorNavajoWhite,
+			Border:     tcell.ColorGray,
+			HelpText:   tcell.ColorLightGray,
+		},
+		PasswordsTableColors: passwordsTable{
+			Background:          BackgroundColorDark,
+			Title:               tcell.ColorWhiteSmoke,
+			Border:              tcell.ColorGray,
+			Label:               tcell.ColorWhiteSmoke,
+			ButtonBackground:    tcell.ColorLightGray,
+			ButtonText:          tcell.ColorBlack,
+			FieldBackground:     tcell.ColorBeige,
+			FieldText:           tcell.ColorBlack,
+			Selection:           tcell.ColorGreen,
+			SelectionBackground: tcell.ColorWheat,
+			Header:              tcell.ColorBisque,
+			ButtonAccent:        tcell.ColorBlueViolet,
+			CopiedBackground:    tcell.ColorGold,
+			CopiedText:          tcell.ColorBlack,
+			CopiedTitle:         tcell.ColorGreen,
+			CopiedBorder:        tcell.ColorWhiteSmoke,
+		},
+		MessagesColors: messages{
+			SuccessBackground: BackgroundColorDark,
 			SuccessTitle:      tcell.ColorNavajoWhite,
 			SuccessBorder:     tcell.ColorGray,
 			SuccessText:       tcell.ColorGreen,
