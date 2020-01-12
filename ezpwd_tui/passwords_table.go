@@ -13,6 +13,8 @@ import (
 	"github.com/rivo/tview"
 )
 
+var pwdModified = false
+
 func (e *devEzpwd) passwordsTable() {
 	table := tview.NewTable().
 		SetBorders(true)
@@ -57,7 +59,11 @@ func (e *devEzpwd) passwordsTable() {
 						e.app.Draw()
 					})
 				} else {
-					e.confirm(" Are you sure you want to quit? ", screenPwds, e.app.Stop)
+					if pwdModified {
+						e.confirm(" Unsaved changes! Are you sure you want to quit? ", screenPwds, e.app.Stop)
+					} else {
+						e.confirm(" Are you sure you want to quit? ", screenPwds, e.app.Stop)
+					}
 				}
 			}
 		})
@@ -142,9 +148,10 @@ func (e *devEzpwd) passwordsTable() {
 				if r == 0 || len(*currentPasswords) == 0 {
 					break
 				}
+				r = mappings[r-1]
 				e.app.QueueUpdateDraw(func() {
 					e.pages.AddPage(screenPwdManage,
-						modal(e.passwordMgmtForm(r-1, *currentPasswords), 50, 15, dialogsStyle),
+						modal(e.passwordMgmtForm(r, *currentPasswords), 50, 15, dialogsStyle),
 						true, true,
 					)
 					e.pages.ShowPage(screenPwdManage)
@@ -158,6 +165,7 @@ func (e *devEzpwd) passwordsTable() {
 				e.confirm(fmt.Sprintf(" Remove service '%s : %s'? ", (*currentPasswords)[r].Service, (*currentPasswords)[r].Login), screenPwds, func() {
 					e.app.QueueUpdateDraw(func() {
 						*currentPasswords = append((*currentPasswords)[:r], (*currentPasswords)[r+1:]...)
+						pwdModified = true
 						drawTable(filterBox.GetText())
 					})
 				})
@@ -190,6 +198,7 @@ func (e *devEzpwd) passwordsTable() {
 				} else {
 					e.showMessage("Success!", fmt.Sprintf("Passwords saved successfully"), screenPwds, successMessageStyle)
 				}
+				pwdModified = false
 			}
 			return key
 		})

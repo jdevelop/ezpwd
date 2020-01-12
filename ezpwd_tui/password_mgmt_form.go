@@ -70,6 +70,7 @@ func (e *devEzpwd) passwordMgmtForm(id int, pwds []ezpwd.Password) *tview.Form {
 					} else {
 						pwds[id] = p
 					}
+					pwdModified = true
 					e.passwordsChan <- pwds
 				}
 			})
